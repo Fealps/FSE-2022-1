@@ -94,18 +94,18 @@ void*normalfunc(void * args){
         if(args_reais->numero_semaforo == 1){
             delay(DELAY_AMARELO);
             seguir(args_reais->numero_cruzamento,args_reais->numero_semaforo);
-            printf(">> Semaforo Principal: Verde<<\n",);
+            printf(">> Semaforo Principal: Verde <<\n");
             delay(DELAY_PRINCIPAL_MAXIMO_VERDE);
             parar(args_reais->numero_cruzamento,args_reais->numero_semaforo);
-            printf(">> Semaforo Principal: Vermelho<<\n",);
+            printf(">> Semaforo Principal: Vermelho <<\n");
             delay(DELAY_PRINCIPAL_MAXIMO_VERMELHO);
         }else{
             parar(args_reais->numero_cruzamento,args_reais->numero_semaforo);
-            printf(">> Semaforo auxiliar: Vermelho<<\n",);
+            printf(">> Semaforo Auxiliar: Vermelho <<\n");
             delay(DELAY_AUXILIAR_MAXIMO_VERMELHO);
             delay(DELAY_AMARELO);
             seguir(args_reais->numero_cruzamento,args_reais->numero_semaforo);
-            printf(">> Semaforo Auxiliar: Verde<<\n",);
+            printf(">> Semaforo Auxiliar: Verde <<\n");
             delay(DELAY_AUXILIAR_MAXIMO_VERDE);
         }
     }
