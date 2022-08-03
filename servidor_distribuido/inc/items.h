@@ -24,15 +24,8 @@ extern int sensor_velocidade [2][2][2];
 
 void configPin(int cruzamento);
 void resetColours(int cruzamento);
-void parar(int numero_cruzamento, int numero_semaforo);
-void seguir(int numero_cruzamento, int numero_semaforo);
-void verdeVermelho(int numero_cruzamento,int numero_semaforo);
-void vermelhoVerde(int numero_cruzamento,int numero_semaforo);
-void modo_normal(int cruzamento);
-void modo_noturno(int cruzamento);
-void modo_emergencia(int cruzamento);
-void*normalfunc(void * args);
-void*intermitente(void * args);
+void inicia(int cruzamento, int modo);
+void*maquinaDeEstado(void * args);
 void turnOn(int numero_cruzamento, int  numero_semaforo, int cor_led);
 void turnOff(int numero_cruzamento, int  numero_semaforo, int cor_led);
 

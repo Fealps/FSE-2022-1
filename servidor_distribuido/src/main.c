@@ -10,28 +10,18 @@ int main(int argc, char*argv[]) {
 		printf("Uso: %s <Numero do cruzamento> <Modo inicial (1-normal 2-modo noturno 3-modo de emergencia)> <ip> <Porta>\n", argv[0]);
 		exit(1);
 	}
-
     int cruzamento = atoi(argv[1]);
-    
+    int modo = atoi(argv[2]);
     if(init){
         configPin(cruzamento);
         init--;  
     }
-
-    printf(">> INICIANDO... <<\n");
-    switch (atoi(argv[2])){
-        case 1:
-            modo_normal(atoi(argv[1]));
-            break;
-        case 2:
-            modo_noturno(atoi(argv[1]));
-            break;
-        case 3:
-            modo_emergencia(atoi(argv[1]));
-            break;
-        default:
-            printf(">> Modo Invalido <<\n");
-            break;
+    if( modo > 3 || modo < 1 ){
+        printf(">> Modo Invalido <<\n");
+        return 0;
+    }else{
+        printf(">> INICIANDO... <<\n");
+        inicia(cruzamento, modo);
     }
         
     while(1) {

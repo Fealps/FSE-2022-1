@@ -28,50 +28,19 @@ void resetColours(int cruzamento){
     }
 }
 
-void parar(int numero_cruzamento, int numero_semaforo){
-    int timeON = 100;
-    int timeMin = 500;
-    if(1){ 
-        verdeVermelho(numero_cruzamento,numero_semaforo);
-    }else{
-        //delay(timeMin-timeON);
-        verdeVermelho(numero_cruzamento,numero_semaforo);
-    }
-}
-
-void seguir(int numero_cruzamento, int numero_semaforo){
-    vermelhoVerde(numero_cruzamento, numero_semaforo);
-}
-
-void verdeVermelho(int numero_cruzamento,int numero_semaforo){
-    turnOff(numero_cruzamento,numero_semaforo,0);   //desliga verde
-    turnOn(numero_cruzamento,numero_semaforo,1);    //liga amarelo
-    delay(DELAY_AMARELO);                           //delay 3 seg
-    turnOff(numero_cruzamento,numero_semaforo,1);   //desliga amarelo
-    turnOn(numero_cruzamento,numero_semaforo,2);    //liga vermelho
-    delay(DELAY_MAXIMO);
-}
-
-void vermelhoVerde(int numero_cruzamento,int numero_semaforo){
-    turnOff(numero_cruzamento,numero_semaforo,2);   //desliga vermelho
-    turnOn(numero_cruzamento,numero_semaforo,0);    //liga verde
-}
-
 typedef struct {
     int* numero_cruzamento;
-    int* numero_semaforo;
+    int* estado;
 } cruzamento_struct;
 
-void modo_normal(int cruzamento){
-    printf(">> Modo Normal <<\n");
+void inicia(int cruzamento, int modo){
     pthread_t socket_cruzamento;
     cruzamento_struct * args;
     args = malloc(sizeof(cruzamento_struct));
-    
-
     resetColours(cruzamento);
     args->numero_cruzamento = cruzamento;
-    pthread_create(&socket_cruzamento, NULL, &normalfunc, args);
+    args->estado=modo*-1;
+    pthread_create(&socket_cruzamento, NULL, &maquinaDeEstado, args);
     pthread_detach(socket_cruzamento);
 }
 
@@ -82,11 +51,28 @@ void excessoVelocidade(){
 
 }
 
-void*normalfunc(void * args){
+void*maquinaDeEstado(void * args){
     cruzamento_struct *args_reais = args;
-    int estado = 6;
+    int estado = args_reais->estado;
     for(;;){
         switch (estado){
+            case -3:
+                printf(">> Modo Emergencia <<\n");
+                resetColours(args_reais->numero_cruzamento);
+                estado = 9;
+                break;
+            case -2:
+                printf(">> Modo Noturno <<\n");
+                resetColours(args_reais->numero_cruzamento);
+                estado=6;
+                break;
+            case -1:
+                printf(">> Modo Normal <<\n");
+                printf(">> Estado: %d <<\n",estado);
+                resetColours(args_reais->numero_cruzamento);
+                turnOn(args_reais->numero_cruzamento,1,2);
+                turnOn(args_reais->numero_cruzamento,0,2);
+                estado = 0;
             case 0:
                 printf(">> Estado: %d <<\n",estado);
                 turnOff(args_reais->numero_cruzamento,0,1);//Y
@@ -129,58 +115,33 @@ void*normalfunc(void * args){
                 delay(DELAY_AMARELO);
                 estado = 0;
                 break;
-            default:
+            case 6:
                 printf(">> Estado: %d <<\n",estado);
-                resetColours(args_reais->numero_cruzamento);
-                turnOn(args_reais->numero_cruzamento,1,2);
+                turnOn(args_reais->numero_cruzamento,1,1); // Y
+                turnOn(args_reais->numero_cruzamento,0,1); // Y
+                delay(DELAY_MAXIMO);
+                estado++;
+                break;
+            case 7:
+                printf(">> Estado: %d <<\n",estado);
+                turnOff(args_reais->numero_cruzamento,1,1); // Y
+                turnOff(args_reais->numero_cruzamento,0,1); // Y
+                delay(DELAY_MAXIMO);
+                estado=6;
+                break;
+            case 9:
+                printf(">> Estado: %d <<\n",estado);
+                turnOn(args_reais->numero_cruzamento,1,0);
                 turnOn(args_reais->numero_cruzamento,0,2);
-                estado = 0;
+                estado++;
+                break;
+            case 10:
+                break;
+            default:
+                printf(">> Modo Invalido <<\n");
             break;
         }
     }
-}
-
-
-void modo_noturno(int cruzamento){
-    printf(">> Modo Noturno <<\n");
-    int i;
-    pthread_t socket_cruzamento[2];
-    cruzamento_struct * args[2] ;
-
-    for(i = 0; i <2; ++i){
-        args[i] = malloc(sizeof(cruzamento_struct));
-    }
-    resetColours(cruzamento);
-    for( i = 0; i <2; ++i){
-        args[i]->numero_semaforo = i;
-        args[i]->numero_cruzamento = cruzamento;
-        pthread_create(&socket_cruzamento[i], NULL, &intermitente, args[i]);
-        pthread_detach(socket_cruzamento[i]);
-    }
-
-}
-
-void modo_emergencia(int cruzamento){
-    printf(">> Modo Emergencia <<\n");
-    resetColours(cruzamento);
-    turnOn(cruzamento,1,0);
-    turnOn(cruzamento,0,2);
-    
-}
-
-void* intermitente(void *args){
-
-    cruzamento_struct *args_reais = args;
-    // thread --- essa func
-                                     //delay 3 seg
-    for(;;){
-        turnOn(args_reais->numero_cruzamento,args_reais->numero_semaforo,1);    //liga amarelo
-        delay(800);   
-        //while(timeday > meia_noite && timeday < cinco_am){
-        turnOff(args_reais->numero_cruzamento,args_reais->numero_semaforo,1);   //desliga amarelo
-        delay(800);  
-    }
- 
 }
 
 void turnOn(int numero_cruzamento, int  numero_semaforo, int cor_led){
