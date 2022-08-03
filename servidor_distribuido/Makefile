@@ -26,4 +26,4 @@ test:
 	make clean 
 	make all 
 	clear
-	make run cruzamento=0 modo=1 ip=164.41.98.17 p=10121 
+	make run cruzamento=1 modo=1 ip=164.41.98.17 p=10121 

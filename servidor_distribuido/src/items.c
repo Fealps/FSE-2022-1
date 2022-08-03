@@ -58,27 +58,21 @@ void vermelhoVerde(int numero_cruzamento,int numero_semaforo){
 }
 
 typedef struct {
-    int* numero_semaforo;
     int* numero_cruzamento;
+    int* numero_semaforo;
 } cruzamento_struct;
 
 void modo_normal(int cruzamento){
     printf(">> Modo Normal <<\n");
-    int i;
-    pthread_t socket_cruzamento[2];
-    cruzamento_struct * args[2] ;
-
-    for(i = 0; i <2; ++i){
-        args[i] = malloc(sizeof(cruzamento_struct));
-    }
+    pthread_t socket_cruzamento;
+    cruzamento_struct * args;
+    args = malloc(sizeof(cruzamento_struct));
+    
 
     resetColours(cruzamento);
-    for( i = 0; i <2; ++i){
-        args[i]->numero_semaforo = i;
-        args[i]->numero_cruzamento = cruzamento;
-        pthread_create(&socket_cruzamento[i], NULL, &normalfunc, args[i]);
-        pthread_detach(socket_cruzamento[i]);
-    }
+    args->numero_cruzamento = cruzamento;
+    pthread_create(&socket_cruzamento, NULL, &normalfunc, args);
+    pthread_detach(socket_cruzamento);
 }
 
 void passouVermelho(){
@@ -90,23 +84,58 @@ void excessoVelocidade(){
 
 void*normalfunc(void * args){
     cruzamento_struct *args_reais = args;
+    int estado = 6;
     for(;;){
-        if(args_reais->numero_semaforo == 1){
-            delay(DELAY_AMARELO);
-            seguir(args_reais->numero_cruzamento,args_reais->numero_semaforo);
-            printf(">> Semaforo Principal: Verde <<\n");
-            delay(DELAY_PRINCIPAL_MAXIMO_VERDE);
-            parar(args_reais->numero_cruzamento,args_reais->numero_semaforo);
-            printf(">> Semaforo Principal: Vermelho <<\n");
-            delay(DELAY_PRINCIPAL_MAXIMO_VERMELHO);
-        }else{
-            parar(args_reais->numero_cruzamento,args_reais->numero_semaforo);
-            printf(">> Semaforo Auxiliar: Vermelho <<\n");
-            delay(DELAY_AUXILIAR_MAXIMO_VERMELHO);
-            delay(DELAY_AMARELO);
-            seguir(args_reais->numero_cruzamento,args_reais->numero_semaforo);
-            printf(">> Semaforo Auxiliar: Verde <<\n");
-            delay(DELAY_AUXILIAR_MAXIMO_VERDE);
+        switch (estado){
+            case 0:
+                printf(">> Estado: %d <<\n",estado);
+                turnOff(args_reais->numero_cruzamento,0,1);//Y
+                turnOn(args_reais->numero_cruzamento,0,2);//R
+                delay(DELAY_MAXIMO);
+                estado++;
+                break;
+            case 1:
+                printf(">> Estado: %d <<\n",estado);
+                turnOff(args_reais->numero_cruzamento,1,2);//R
+                turnOn(args_reais->numero_cruzamento,1,0);//G
+                delay(DELAY_PRINCIPAL_MAXIMO_VERDE);
+                estado++;
+                break;
+            case 2:
+                printf(">> Estado: %d <<\n",estado);
+                turnOff(args_reais->numero_cruzamento,1,0);//G
+                turnOn(args_reais->numero_cruzamento,1,1);//Y
+                delay(DELAY_AMARELO);
+                estado++;
+                break;
+            case 3:
+                printf(">> Estado: %d <<\n",estado);
+                turnOff(args_reais->numero_cruzamento,1,1);//Y
+                turnOn(args_reais->numero_cruzamento,1,2);//R
+                delay(DELAY_MAXIMO);
+                estado++;
+                break;
+            case 4:
+                printf(">> Estado: %d <<\n",estado);
+                turnOff(args_reais->numero_cruzamento,0,2);//R
+                turnOn(args_reais->numero_cruzamento,0,0);//G
+                delay(DELAY_AUXILIAR_MAXIMO_VERDE);
+                estado++;
+                break; 
+            case 5:
+                printf(">> Estado: %d <<\n",estado);
+                turnOff(args_reais->numero_cruzamento,0,0);//G
+                turnOn(args_reais->numero_cruzamento,0,1);//Y
+                delay(DELAY_AMARELO);
+                estado = 0;
+                break;
+            default:
+                printf(">> Estado: %d <<\n",estado);
+                resetColours(args_reais->numero_cruzamento);
+                turnOn(args_reais->numero_cruzamento,1,2);
+                turnOn(args_reais->numero_cruzamento,0,2);
+                estado = 0;
+            break;
         }
     }
 }
