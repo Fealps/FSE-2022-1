@@ -81,30 +81,32 @@ void modo_normal(int cruzamento){
     }
 }
 
+void passouVermelho(){
+
+}
+void excessoVelocidade(){
+
+}
+
 void*normalfunc(void * args){
     cruzamento_struct *args_reais = args;
-    if(args_reais->numero_semaforo == 1){
-        turnOn(args_reais->numero_cruzamento,args_reais->numero_semaforo,2);
-    }else{
-        turnOn(args_reais->numero_cruzamento,args_reais->numero_semaforo,2);
-        delay(DELAY_PRINCIPAL_MAXIMO_VERDE);
-        delay(DELAY_AMARELO);
-        delay(DELAY_MAXIMO);
-    }
     for(;;){
         if(args_reais->numero_semaforo == 1){
+            delay(DELAY_AMARELO);
             seguir(args_reais->numero_cruzamento,args_reais->numero_semaforo);
+            printf(">> Semaforo Principal: Verde<<\n",);
             delay(DELAY_PRINCIPAL_MAXIMO_VERDE);
             parar(args_reais->numero_cruzamento,args_reais->numero_semaforo);
+            printf(">> Semaforo Principal: Vermelho<<\n",);
             delay(DELAY_PRINCIPAL_MAXIMO_VERMELHO);
-            delay(DELAY_AMARELO);
-            
         }else{
-            seguir(args_reais->numero_cruzamento,args_reais->numero_semaforo);
-            delay(DELAY_AUXILIAR_MAXIMO_VERDE);
             parar(args_reais->numero_cruzamento,args_reais->numero_semaforo);
+            printf(">> Semaforo auxiliar: Vermelho<<\n",);
             delay(DELAY_AUXILIAR_MAXIMO_VERMELHO);
             delay(DELAY_AMARELO);
+            seguir(args_reais->numero_cruzamento,args_reais->numero_semaforo);
+            printf(">> Semaforo Auxiliar: Verde<<\n",);
+            delay(DELAY_AUXILIAR_MAXIMO_VERDE);
         }
     }
 }
@@ -153,17 +155,9 @@ void* intermitente(void *args){
 }
 
 void turnOn(int numero_cruzamento, int  numero_semaforo, int cor_led){
-    printf(">> Cruzamento %d - Semaforo %d Pino: %d Estado: Ligado <<\n", 
-                        numero_cruzamento + 1, 
-                        numero_semaforo + 1, 
-                        semaforo[numero_cruzamento][numero_semaforo][cor_led]);
     digitalWrite(semaforo[numero_cruzamento][numero_semaforo][cor_led], HIGH);
 }
 
 void turnOff(int numero_cruzamento, int  numero_semaforo, int cor_led){
-    printf(">> Cruzamento %d - Semaforo %d Pino: %d Estado: Desligado <<\n",
-                        numero_cruzamento + 1, 
-                        numero_semaforo + 1,
-                        semaforo[numero_cruzamento][numero_semaforo][cor_led]);
     digitalWrite(semaforo[numero_cruzamento][numero_semaforo][cor_led], LOW);
 }
