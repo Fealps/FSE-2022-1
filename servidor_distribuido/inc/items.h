@@ -2,7 +2,7 @@
 #define ITEMS_H
 
 #include "libs.h"
-
+#include "estado.h"
 //DELAY TIMES
 #define DELAY_AMARELO                       3000 
 #define DELAY_MAXIMO                        1000
@@ -22,10 +22,12 @@ extern int botao [2][2] ;
 extern int sensor_passagem [2][2];
 extern int sensor_velocidade [2][2][2];
 
+void btnPress();
+void snsrCatch();
 void configPin(int cruzamento);
 void resetColours(int cruzamento);
 void inicia(int cruzamento, int modo);
-void*maquinaDeEstado(void * args);
+void*maquinaDeEstado();
 void turnOn(int numero_cruzamento, int  numero_semaforo, int cor_led);
 void turnOff(int numero_cruzamento, int  numero_semaforo, int cor_led);
 

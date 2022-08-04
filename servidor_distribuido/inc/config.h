@@ -41,6 +41,7 @@
 #define SENSOR_VELOCIDADE_2_A_C2            23    //GPIO 13
 #define SENSOR_VELOCIDADE_2_B_C2            24    //GPIO 19
 
+
 int semaforo [2][2][3] =
 {
     { //cruzamento 1 

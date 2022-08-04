@@ -1,50 +1,73 @@
 #include "client.h"
 
+struct sockaddr_in servidorAddr;
+int clienteSocket ;
 
-int RaspConnection(int argc, char *argv[], char * msg) {
-	int clienteSocket;
-	struct sockaddr_in servidorAddr;
-	unsigned short servidorPorta;
-	char *IP_Servidor;
-	char *mensagem;
-	char buffer[16];
-	unsigned int tamanhoMensagem;
+void RaspConnection(int servidorPorta , char * IP_Servidor) {
+    // Criar Socket
+    clienteSocket  = socket(AF_INET, SOCK_STREAM, 0);
 
-	int bytesRecebidos;
-	int totalBytesRecebidos;
-
-	IP_Servidor = argv[3];
-	servidorPorta = atoi(argv[4]);
-	mensagem = msg;
-
-	// Criar Socket
-	if((clienteSocket = socket(PF_INET, SOCK_STREAM, IPPROTO_TCP)) < 0)
-		printf("Erro no socket()\n");
+    if ((clienteSocket  = socket(AF_INET, SOCK_STREAM, 0)) <= 0){ 
+       	printf(">> Erro no socket <<\n");
+    }
+    printf(">> Socket Criado <<\n");
 
 	// Construir struct sockaddr_in
-	memset(&servidorAddr, 0, sizeof(servidorAddr)); // Zerando a estrutura de dados
-	servidorAddr.sin_family = AF_INET;
-	servidorAddr.sin_addr.s_addr = inet_addr(IP_Servidor);
-	servidorAddr.sin_port = htons(servidorPorta);
+    memset(&servidorAddr, 0, sizeof(servidorAddr)); // Zerando a estrutura de dados
+    servidorAddr.sin_family = AF_INET;
+    servidorAddr.sin_addr.s_addr = inet_addr(IP_Servidor); 
+    servidorAddr.sin_port = htons(servidorPorta );
 
-	// Connect
-	if(connect(clienteSocket, (struct sockaddr *) &servidorAddr, 
-							sizeof(servidorAddr)) < 0)
-		printf("Erro no connect()\n");
+    /* Inicia a conexão no socket */
+    if(connect(clienteSocket, (struct sockaddr *) &servidorAddr, 
+							sizeof(servidorAddr)) < 0){
+        perror(">> Não pode conectar no Socket<<\n");
+        exit(0);
+    }
+}
 
-	tamanhoMensagem = strlen(mensagem);
+void * clientThread() {
+    char mensagem[10];
 
-	if(send(clienteSocket, mensagem, tamanhoMensagem, 0) != tamanhoMensagem)
-		printf("Erro no envio: numero de bytes enviados diferente do esperado\n");
+    while (1) {
+        bzero(mensagem, sizeof(mensagem));
+        if((recv(clienteSocket, mensagem, sizeof(mensagem), 0)) < 0) {
+            printf(">> Não foi possível ler a mensagem enviada <<\n");
+        }
+        else if (mensagem[0] != '\0'){
+            printf(">> Solicitação detectada mudança para o modo >> %s <<\n", mensagem);
+            getMessage(mensagem);
+        }
+    }
+}
 
-	totalBytesRecebidos = 0;
-	while(totalBytesRecebidos < tamanhoMensagem) {
-		if((bytesRecebidos = recv(clienteSocket, buffer, 16-1, 0)) <= 0)
-			printf("Não recebeu o total de bytes enviados\n");
-		totalBytesRecebidos += bytesRecebidos;
-		buffer[bytesRecebidos] = '\0';
-		printf("%s\n", buffer);
+void sendMensagem(int * mensagem) {
+    if (clienteSocket < 0) {
+        printf("\nERRO: Não consigo enviar a mensagem!\n");
+    }
+    int response = send(clienteSocket, mensagem, 4 * sizeof(int), 0);
+    if (!response)
+        printf("\nERRO: Não foi possivel enviar a mensagem!\n");
+}
+
+void getMessage(char * mensagem){
+
+	switch(atoi(mensagem)){
+		case 1: 
+			printf(">> Selecionado modo 1 <<\n");
+			args->estado=-1;
+			break;
+		case 2:
+			printf(">> Selecionado modo 2 <<\n");
+			args->estado=-2;
+			break;
+		case 3:
+			printf(">> Selecionado modo 3 <<\n");
+			args->estado=-2;
+			break;
+		default:
+			printf("\n>> Mensagem invalida <<\n");
+			args->estado=-1;
+		break;
 	}
-	close(clienteSocket);
-	exit(0);
 }

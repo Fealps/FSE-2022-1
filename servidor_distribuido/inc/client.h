@@ -6,5 +6,15 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-int RaspConnection(int argc, char *argv[], char * msg);
+#include <netinet/in.h>
+#include <sys/types.h> 
+#include <strings.h> 
+#include <ctype.h>
+#include "estado.h"
+
+void RaspConnection(int servidorPorta , char * IP_Servidor);
+void * clientThread();
+void sendMensagem(int * mensagem);
+void getMessage(char * mensagem);
+
 #endif
