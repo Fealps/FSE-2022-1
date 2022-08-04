@@ -7,5 +7,5 @@
 #include <stdlib.h>
 #include <wiringPi.h>
 #include <unistd.h>
-
+#include <stdbool.h>
 #endif

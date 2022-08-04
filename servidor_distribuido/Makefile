@@ -37,4 +37,5 @@ emergencia:
 	make clean 
 	make all 
 	clear
-	make run cruzamento=1 modo=3 ip=164.41.98.17 p=10121 
+	make run cruzamento=1 modo=3 ip=164.41.98.17 p=10121
+

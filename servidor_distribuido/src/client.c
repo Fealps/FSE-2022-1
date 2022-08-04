@@ -59,11 +59,12 @@ void getMessage(char * mensagem){
 			break;
 		case 2:
 			printf(">> Selecionado modo 2 <<\n");
+            printf("%d", args->estado);
 			args->estado=-2;
 			break;
 		case 3:
 			printf(">> Selecionado modo 3 <<\n");
-			args->estado=-2;
+			args->estado=-3;
 			break;
 		default:
 			printf("\n>> Mensagem invalida <<\n");

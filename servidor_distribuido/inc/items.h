@@ -27,6 +27,7 @@ void snsrCatch();
 void configPin(int cruzamento);
 void resetColours(int cruzamento);
 void inicia(int cruzamento, int modo);
+void soarAlarme();
 void*maquinaDeEstado();
 void turnOn(int numero_cruzamento, int  numero_semaforo, int cor_led);
 void turnOff(int numero_cruzamento, int  numero_semaforo, int cor_led);

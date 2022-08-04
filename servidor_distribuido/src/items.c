@@ -1,6 +1,8 @@
 #include "items.h"
 
 cruzamento_struct * args = {NULL};
+mensagem * mensagens = {NULL};
+bool sinalR = false;
 
 void configPin(int cruzamento){
     printf(">> Configurando... <<\n");
@@ -22,8 +24,33 @@ void configPin(int cruzamento){
         }
     }
 }
-void btnPress(){}
-void snsrCatch(){}
+void btnPress(){
+    
+}
+
+bool carroParado = false;
+void snsrCatch(){
+    if (carroParado) {
+            if (sinalR){
+                printf("\nUEPAA!\n");
+                soarAlarme();
+                mensagens->multa_vermelho++;
+                carroParado = false;
+            }
+        }
+        else {
+            printf(">> Carro Esperando <<\n");
+            carroParado = true;
+            mensagens->qtd_carros++;
+        }
+}
+
+void soarAlarme(){
+    if (system("omxplayer example.mp3") < 0){
+        printf("Erro para soar alarme\n");
+    }
+}
+
 void resetColours(int cruzamento){
     for(int i = 0; i<2; i++){
         for(int j= 0; j<3; j++ ){
@@ -41,6 +68,13 @@ void inicia(int cruzamento, int modo){
     args = (cruzamento_struct *)realloc(args, sizeof(cruzamento_struct));
     args->numero_cruzamento = cruzamento;
     args->estado = modo*-1;
+    
+    mensagens = realloc(mensagens, sizeof(mensagem));
+    mensagens->numero_cruzamento = cruzamento;
+    mensagens->qtd_carros = 0;
+    mensagens->multa_velocidade = 0;
+    mensagens->multa_vermelho = 0;
+    
     pthread_create(&socket_cruzamento, NULL, &maquinaDeEstado, NULL);
     pthread_detach(socket_cruzamento);
 }
@@ -49,6 +83,13 @@ void passouVermelho(){
 
 }
 void excessoVelocidade(){
+}
+
+void timeFunction(int timeToWait){
+
+    for(int i = 0; i<timeToWait/1000; i++){
+        delay(DELAY_MAXIMO);
+    }
 }
 
 void*maquinaDeEstado(){
@@ -71,68 +112,75 @@ void*maquinaDeEstado(){
                 resetColours(args->numero_cruzamento);
                 turnOn(args->numero_cruzamento,1,2);//R
                 turnOn(args->numero_cruzamento,0,2);//R
+                sinalR = true;
                 args->estado = 0;
             case 0:
                 printf(">> Estado: %d <<\n",estado);
+                args->estado++;
                 turnOff(args->numero_cruzamento,0,1);//Y
                 turnOn(args->numero_cruzamento,0,2);//R
-                delay(DELAY_MAXIMO);
-                args->estado++;
+                sinalR = true;
+                timeFunction(DELAY_MAXIMO);
                 break;
             case 1:
                 printf(">> Estado: %d <<\n",estado);
+                args->estado++;
                 turnOff(args->numero_cruzamento,1,2);//R
                 turnOn(args->numero_cruzamento,1,0);//G
-                delay(DELAY_PRINCIPAL_MAXIMO_VERDE);
-                args->estado++;
+                timeFunction(DELAY_PRINCIPAL_MAXIMO_VERDE);
                 break;
             case 2:
                 printf(">> Estado: %d <<\n",estado);
+                args->estado++;
                 turnOff(args->numero_cruzamento,1,0);//G
                 turnOn(args->numero_cruzamento,1,1);//Y
-                delay(DELAY_AMARELO);
-                args->estado++;
+                timeFunction(DELAY_AMARELO);
                 break;
             case 3:
                 printf(">> Estado: %d <<\n",estado);
+                args->estado++;
                 turnOff(args->numero_cruzamento,1,1);//Y
                 turnOn(args->numero_cruzamento,1,2);//R
-                delay(DELAY_MAXIMO);
-                args->estado++;
+                sinalR = true;
+                timeFunction(DELAY_MAXIMO);
                 break;
             case 4:
                 printf(">> Estado: %d <<\n",estado);
+                args->estado++;
                 turnOff(args->numero_cruzamento,0,2);//R
                 turnOn(args->numero_cruzamento,0,0);//G
-                delay(DELAY_AUXILIAR_MAXIMO_VERDE);
-                args->estado++;
+                 sinalR = false;
+                timeFunction(DELAY_AUXILIAR_MAXIMO_VERDE);
                 break; 
             case 5:
                 printf(">> Estado: %d <<\n",estado);
+                args->estado = 0;
                 turnOff(args->numero_cruzamento,0,0);//G
                 turnOn(args->numero_cruzamento,0,1);//Y
-                delay(DELAY_AMARELO);
-                args->estado = 0;
+                timeFunction(DELAY_AMARELO);
                 break;
             case 6:
                 printf(">> Estado: %d <<\n",estado);
+                args->estado++;
                 turnOn(args->numero_cruzamento,1,1);//Y
                 turnOn(args->numero_cruzamento,0,1);//Y
-                delay(DELAY_MAXIMO);
-                args->estado++;
+                sinalR = false;
+                timeFunction(DELAY_MAXIMO);
                 break;
             case 7:
                 printf(">> Estado: %d <<\n",estado);
+                args->estado=6;
                 turnOff(args->numero_cruzamento,1,1);//Y
                 turnOff(args->numero_cruzamento,0,1);//Y
-                delay(DELAY_MAXIMO);
-                args->estado=6;
+                sinalR = false;
+                timeFunction(DELAY_MAXIMO);
                 break;
             case 9:
                 printf(">> Estado: %d <<\n",estado);
+                args->estado++;
                 turnOn(args->numero_cruzamento,1,0);//G
                 turnOn(args->numero_cruzamento,0,2);//R
-                args->estado++;
+                sinalR = true;
                 break;
             case 10:
                 break;
